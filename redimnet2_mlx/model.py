@@ -8,17 +8,17 @@ Layouts used internally (MLX is channels-last):
   1D feature maps: (B, T, F*C)    <->  torch (B, F*C, T)   (same f-major channel order)
 """
 
-import math
 import json
+import math
 from pathlib import Path
 
 import mlx.core as mx
-import mlx.nn as nn
-
+from mlx import nn
 
 # ----------------------------------------------------------------------------
 # Primitive layers
 # ----------------------------------------------------------------------------
+
 
 def _pair(v):
     return tuple(v) if isinstance(v, (tuple, list)) else (v, v)
@@ -159,6 +159,7 @@ def run_seq(layers, x):
 # ReDimNet structural pieces
 # ----------------------------------------------------------------------------
 
+
 def to1d(x):
     # (B, F, T, C) -> (B, T, F*C)
     B, F, T, C = x.shape
@@ -170,6 +171,7 @@ def make_to2d(f, c):
         # (B, T, F*C) -> (B, F, T, C)
         B, T, _ = x.shape
         return x.reshape(B, T, f, c).transpose(0, 2, 1, 3)
+
     return to2d
 
 
@@ -180,7 +182,7 @@ class Weigth1d(nn.Module):
 
     def __call__(self, xs):
         w = mx.softmax(self.w, axis=1)[0, :, :, 0]  # (N, C)
-        xs = mx.stack(xs, axis=1)                   # (B, N, T, C)
+        xs = mx.stack(xs, axis=1)  # (B, N, T, C)
         return (w[None, :, None, :] * xs).sum(axis=1)
 
 
@@ -303,11 +305,25 @@ DEFAULT_STAGES = [
 
 
 class ReDimNet2(nn.Module):
-    def __init__(self, F=72, C=24, block_1d_type="conv+att", block_2d_type="basic_resnet",
-                 return_2d_output=False, out_channels=None, stages_setup=None,
-                 compress_tconvs=True, agg_gnorm=False, fm_weigthing_type="NC",
-                 group_divisor=1, causal="none", dual_agg=False, use_freq_pos_enc=False,
-                 spec_in_channels=1, att_dos=None):
+    def __init__(
+        self,
+        F=72,
+        C=24,
+        block_1d_type="conv+att",
+        block_2d_type="basic_resnet",
+        return_2d_output=False,
+        out_channels=None,
+        stages_setup=None,
+        compress_tconvs=True,
+        agg_gnorm=False,
+        fm_weigthing_type="NC",
+        group_divisor=1,
+        causal="none",
+        dual_agg=False,
+        use_freq_pos_enc=False,
+        spec_in_channels=1,
+        att_dos=None,
+    ):
         super().__init__()
         if causal not in ("none", False, None):
             raise NotImplementedError("causal models not ported yet")
@@ -355,7 +371,9 @@ class ReDimNet2(nn.Module):
         self._final = (f, c)
         self._return_2d = return_2d_output
         if out_channels is not None:
-            self.head = Conv2d(c, out_channels, 1) if return_2d_output else Conv1d(CF, out_channels, 1)
+            self.head = (
+                Conv2d(c, out_channels, 1) if return_2d_output else Conv1d(CF, out_channels, 1)
+            )
         self._has_head = out_channels is not None
 
     def _run_stage(self, layers, outs):
@@ -386,6 +404,7 @@ class ReDimNet2(nn.Module):
 # ----------------------------------------------------------------------------
 # Features (TFMelBanks) and pooling
 # ----------------------------------------------------------------------------
+
 
 class NormalizeAudio(nn.Module):
     def __init__(self, eps):
@@ -428,8 +447,7 @@ class SpectralFeaturesTF(nn.Module):
 
 
 class TFMelBanks(nn.Module):
-    def __init__(self, n_mels, hop_length=160, norm_signal=False, do_preemph=True,
-                 eps=1e-8, **_):
+    def __init__(self, n_mels, hop_length=160, norm_signal=False, do_preemph=True, eps=1e-8, **_):
         super().__init__()
         self.torchfbank = [
             NormalizeAudio(eps) if norm_signal else Placeholder(),
@@ -457,7 +475,9 @@ class ASTP(nn.Module):
             u = x.mean(1, keepdims=True)
             var = mx.square(x - u).sum(1, keepdims=True) / (T - 1)  # torch.var is unbiased
             sd = mx.sqrt(var + 1e-7)
-            x_in = mx.concatenate([x, mx.broadcast_to(u, x.shape), mx.broadcast_to(sd, x.shape)], -1)
+            x_in = mx.concatenate(
+                [x, mx.broadcast_to(u, x.shape), mx.broadcast_to(sd, x.shape)], -1
+            )
         else:
             x_in = x
         alpha = mx.softmax(self.linear2(mx.tanh(self.linear1(x_in))), axis=1)
@@ -468,18 +488,34 @@ class ASTP(nn.Module):
 
 
 class ReDimNet2Wrap(nn.Module):
-    def __init__(self, F=72, C=24, embed_dim=192, hop_length=160, pooling_func="ASTP",
-                 feat_type="tf", global_context_att=True, emb_bn=False,
-                 out_channels=None, return_2d_output=False, spec_params=None,
-                 pad_right_samples=None, before_pool_offset=None, num_classes=None,
-                 feat_agg_dropout=0.0, head_activation=None, **backbone_kw):
+    def __init__(
+        self,
+        F=72,
+        C=24,
+        embed_dim=192,
+        hop_length=160,
+        pooling_func="ASTP",
+        feat_type="tf",
+        global_context_att=True,
+        emb_bn=False,
+        out_channels=None,
+        return_2d_output=False,
+        spec_params=None,
+        pad_right_samples=None,
+        before_pool_offset=None,
+        num_classes=None,
+        feat_agg_dropout=0.0,
+        head_activation=None,
+        **backbone_kw,
+    ):
         super().__init__()
         if feat_type not in ("tf", "tf_mel"):
             raise NotImplementedError(f"feat_type={feat_type!r} not ported yet")
         if pooling_func != "ASTP":
             raise NotImplementedError(f"pooling_func={pooling_func!r} not ported yet")
-        self.backbone = ReDimNet2(F=F, C=C, out_channels=out_channels,
-                                  return_2d_output=return_2d_output, **backbone_kw)
+        self.backbone = ReDimNet2(
+            F=F, C=C, out_channels=out_channels, return_2d_output=return_2d_output, **backbone_kw
+        )
         sp = dict(spec_params or {})
         sp.pop("do_spec_aug", None)
         self.spec = TFMelBanks(n_mels=F, hop_length=hop_length, **sp)
@@ -507,7 +543,7 @@ class ReDimNet2Wrap(nn.Module):
             B, f, T, c = out.shape
             out = out.transpose(0, 2, 3, 1).reshape(B, T, c * f)
         if self._offset is not None:
-            out = out[:, self._offset:]
+            out = out[:, self._offset :]
         out = self.linear(self.bn(self.pool(out)))
         if "bn2" in self:
             out = self.bn2(out)

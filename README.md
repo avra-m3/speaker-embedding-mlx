@@ -21,16 +21,20 @@ head and ASTP pooling. Other config options raise `NotImplementedError`.
 
 ## Usage
 
+Dependencies are managed with [uv](https://docs.astral.sh/uv/). `uv sync` installs MLX
+(the `mlx[cpu]` build on Linux), numpy and soundfile from `uv.lock`.
+
 ```bash
-pip install mlx numpy soundfile            # Apple Silicon
-python embed.py mlx_models/b3-vox2-lm a.wav b.wav
+uv sync
+uv run python embed.py mlx_models/b3-vox2-lm a.wav b.wav
 ```
 
 ```python
 import mlx.core as mx
 from redimnet2_mlx import load_model
+
 model = load_model("mlx_models/b3-vox2-lm")
-emb = model(mx.array(wav_16k_float32)[None])   # (1, 192)
+emb = model(mx.array(wav_16k_float32)[None])  # (1, 192)
 ```
 
 The input is mono 16 kHz float audio shaped (B, samples), the same as the PyTorch model.
@@ -38,16 +42,23 @@ The input is mono 16 kHz float audio shaped (B, samples), the same as the PyTorc
 Convert another checkpoint (downloads from the upstream release when `--checkpoint` is omitted):
 
 ```bash
-pip install torch scipy
-python convert.py --model b3 --train-type lm --dataset vox2 --out mlx_models/b3-vox2-lm
+uv sync --group convert
+uv run python convert.py --model b3 --train-type lm --dataset vox2 --out mlx_models/b3-vox2-lm
 ```
 
 Re-run parity (needs a clone of the upstream repo and the `.pt` file):
 
 ```bash
 git clone https://github.com/PalabraAI/redimnet2 && git -C redimnet2 checkout c5bbe0b
-PYTHONPATH=. python parity.py --torch-repo redimnet2 --checkpoint b3-vox2-lm.pt \
+uv run --group convert python parity.py --torch-repo redimnet2 --checkpoint b3-vox2-lm.pt \
     --mlx-model mlx_models/b3-vox2-lm --wav some_speech.wav
+```
+
+## Development
+
+```bash
+uv run --group dev ruff format --check .
+uv run --group dev ruff check .
 ```
 
 ## Parity (float32, MLX CPU backend, Linux)

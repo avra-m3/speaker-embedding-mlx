@@ -1,12 +1,12 @@
 """Compute a ReDimNet2 speaker embedding with MLX.
 
-    python embed.py mlx_models/b3-vox2-lm a.wav [b.wav]   # prints cosine score for two files
+python embed.py mlx_models/b3-vox2-lm a.wav [b.wav]   # prints cosine score for two files
 """
 
 import sys
 
-import numpy as np
 import mlx.core as mx
+import numpy as np
 import soundfile as sf
 
 from redimnet2_mlx import load_model

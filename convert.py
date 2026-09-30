@@ -10,8 +10,8 @@ import argparse
 import json
 from pathlib import Path
 
-import numpy as np
 import mlx.core as mx
+import numpy as np
 
 URL = "https://github.com/PalabraAI/redimnet2/releases/download/v1.0.0/{name}"
 
@@ -23,9 +23,9 @@ def torch_to_mlx(state_dict):
         if k.endswith("num_batches_tracked"):
             continue
         a = v.detach().cpu().float().numpy()
-        if a.ndim == 4 and not k.endswith(".w"):      # Conv2d (O, I, H, W) -> (O, H, W, I)
+        if a.ndim == 4 and not k.endswith(".w"):  # Conv2d (O, I, H, W) -> (O, H, W, I)
             a = a.transpose(0, 2, 3, 1)
-        elif a.ndim == 3:                              # Conv1d (O, I, K) -> (O, K, I)
+        elif a.ndim == 3:  # Conv1d (O, I, K) -> (O, K, I)
             a = a.transpose(0, 2, 1)
         out[k] = mx.array(np.ascontiguousarray(a))
     return out
@@ -33,12 +33,16 @@ def torch_to_mlx(state_dict):
 
 def load_checkpoint(args):
     import torch
+
     if args.checkpoint:
         return torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     name = f"{args.model}-{args.dataset}-{args.train_type}.pt"
-    return torch.hub.load_state_dict_from_url(URL.format(name=name.replace("+", "%2B")),
-                                              map_location="cpu", weights_only=False,
-                                              file_name=name)
+    return torch.hub.load_state_dict_from_url(
+        URL.format(name=name.replace("+", "%2B")),
+        map_location="cpu",
+        weights_only=False,
+        file_name=name,
+    )
 
 
 def main():
@@ -54,8 +58,10 @@ def main():
     weights = torch_to_mlx(ckpt["state_dict"])
 
     # Build the MLX model to check every key and shape lines up before saving.
-    from redimnet2_mlx.model import ReDimNet2Wrap
     from mlx.utils import tree_flatten
+
+    from redimnet2_mlx.model import ReDimNet2Wrap
+
     model = ReDimNet2Wrap(**ckpt["model_config"])
     expected = dict(tree_flatten(model.parameters()))
     missing = sorted(set(expected) - set(weights))
@@ -69,7 +75,7 @@ def main():
     mx.save_safetensors(str(out / "weights.safetensors"), weights)
     (out / "config.json").write_text(json.dumps(ckpt["model_config"], indent=2))
     n = sum(v.size for v in weights.values())
-    print(f"wrote {out} ({len(weights)} tensors, {n/1e6:.2f}M values)")
+    print(f"wrote {out} ({len(weights)} tensors, {n / 1e6:.2f}M values)")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,0 @@
-mlx>=0.32        # on Linux: mlx[cpu]
-numpy
-soundfile        # embed.py / parity.py --wav
-# conversion and parity only:
-torch
-scipy

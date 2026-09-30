@@ -11,8 +11,8 @@ float32 rounding floor that neither framework can beat.
 import argparse
 import sys
 
-import numpy as np
 import mlx.core as mx
+import numpy as np
 
 
 def stats(name, ref, got):
@@ -31,6 +31,7 @@ def torch_forward_fp64(m, x):
     """ReDimNet2Wrap.forward in float64 (the torch feature code hard-casts to float32)."""
     import torch
     import torch.nn.functional as F
+
     fb = m.spec.torchfbank
     x = x.unsqueeze(1)
     if not isinstance(fb[0], torch.nn.Identity):
@@ -62,8 +63,10 @@ def main():
     args = p.parse_args()
 
     import torch
+
     sys.path.insert(0, args.torch_repo)
     from redimnet2.redimnet2 import ReDimNet2Wrap as TorchWrap
+
     from redimnet2_mlx import load_model
 
     torch.manual_seed(0)
@@ -87,6 +90,7 @@ def main():
         inputs.append((f"synthetic {s:g}s x2", np.stack([a, b]).astype(np.float32)))
     for w in args.wav:
         import soundfile as sf
+
         x, sr = sf.read(w, dtype="float32")
         assert sr == 16000 and x.ndim == 1, "need mono 16 kHz audio"
         inputs.append((w.split("/")[-1], x[None]))
