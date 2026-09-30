@@ -10,9 +10,11 @@ import argparse
 import json
 import re
 from pathlib import Path
+from urllib.parse import quote
 
 UPSTREAM = "https://github.com/PalabraAI/redimnet2"
 CODE = "https://github.com/avra-m3/speaker-embedding-mlx"
+RESULTS = Path(__file__).parent / "results"
 
 DATASETS = {
     "vox2": "VoxCeleb2-dev",
@@ -38,11 +40,23 @@ def repo_name(model_dir):
     return f"redimnet2-{slug}-mlx"
 
 
+def parity_error(model_dir):
+    """Worst embedding relative error from this checkpoint's parity log (see parity.py)."""
+    log = RESULTS / f"parity_{model_dir.name}.txt"
+    if not log.exists():
+        raise SystemExit(f"no parity log for {model_dir.name}: run parity.py first ({log})")
+    m = re.search(r"worst embedding rel error: (\S+)", log.read_text())
+    if not m or "PASS" not in log.read_text():
+        raise SystemExit(f"{log} does not record a passing parity run")
+    return float(m.group(1)), log.name
+
+
 def model_card(model_dir, repo_id):
     size, rest = model_dir.name.split("-", 1)
     dataset, train = rest.rsplit("-", 1)
     cfg = json.loads((model_dir / "config.json").read_text())
     caveat = DATASET_CAVEAT if dataset != "vox2" else ""
+    err, log_name = parity_error(model_dir)
     return f"""---
 license: mit
 library_name: mlx
@@ -76,8 +90,9 @@ emb = model(mx.array(wav_16k_float32)[None])  # (1, {cfg.get("embed_dim", 192)})
 
 ## Parity
 
-Embeddings match the PyTorch reference to about 4e-6 relative error in float32 (MLX CPU
-backend). See the [parity logs]({CODE}/tree/main/results).
+Embeddings match the PyTorch reference to within {err:.1e} relative error (worst case over
+the test inputs) in float32 on the MLX CPU backend. See the
+[parity log]({CODE}/blob/main/results/{quote(log_name)}).
 {caveat}
 ## License and citation
 
