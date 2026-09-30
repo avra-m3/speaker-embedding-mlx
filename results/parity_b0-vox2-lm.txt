@@ -1,0 +1,31 @@
+
+== synthetic 1s x2: shape (2, 16000)
+log-mel features           max_abs=4.034e-04  rel_to_max=5.404e-05
+backbone output            max_abs=2.156e-05  rel_to_max=3.435e-06
+embedding (torch fp32 floor) max_abs=1.231e-05  rel_to_max=1.323e-06  min_cos=1.000000000
+embedding (MLX vs torch)   max_abs=2.265e-05  rel_to_max=2.435e-06  min_cos=1.000000000
+embedding (MLX vs fp64)    max_abs=2.007e-05  rel_to_max=2.158e-06  min_cos=1.000000000
+
+== synthetic 3.3s x2: shape (2, 52800)
+log-mel features           max_abs=1.128e-04  rel_to_max=1.495e-05
+backbone output            max_abs=3.844e-05  rel_to_max=7.435e-06
+embedding (torch fp32 floor) max_abs=8.345e-06  rel_to_max=9.399e-07  min_cos=1.000000000
+embedding (MLX vs torch)   max_abs=2.384e-05  rel_to_max=2.685e-06  min_cos=1.000000000
+embedding (MLX vs fp64)    max_abs=1.834e-05  rel_to_max=2.065e-06  min_cos=1.000000000
+
+== synthetic 8s x2: shape (2, 128000)
+log-mel features           max_abs=3.543e-04  rel_to_max=3.842e-05
+backbone output            max_abs=4.166e-05  rel_to_max=7.014e-06
+embedding (torch fp32 floor) max_abs=1.308e-05  rel_to_max=2.071e-06  min_cos=1.000000000
+embedding (MLX vs torch)   max_abs=1.812e-05  rel_to_max=2.868e-06  min_cos=1.000000000
+embedding (MLX vs fp64)    max_abs=2.049e-05  rel_to_max=3.243e-06  min_cos=1.000000000
+
+== audio.wav: shape (1, 87270)
+log-mel features           max_abs=6.962e-05  rel_to_max=5.125e-06
+backbone output            max_abs=2.855e-05  rel_to_max=4.250e-06
+embedding (torch fp32 floor) max_abs=5.217e-06  rel_to_max=7.116e-07  min_cos=1.000000000
+embedding (MLX vs torch)   max_abs=1.800e-05  rel_to_max=2.455e-06  min_cos=1.000000000
+embedding (MLX vs fp64)    max_abs=1.865e-05  rel_to_max=2.543e-06  min_cos=1.000000000
+
+worst embedding rel error: 2.868e-06 (tolerance 0.0001)
+PASS

@@ -1,9 +1,9 @@
 # speaker-embedding-mlx
 
-## ReDimNet2 on MLX (b3, inference)
+## ReDimNet2 on MLX (b0 to b4, inference)
 
 MLX port of [PalabraAI/redimnet2](https://github.com/PalabraAI/redimnet2) (MIT), checked against
-upstream commit `c5bbe0b`. It covers everything the released **b3** checkpoints use: TF-style
+upstream commit `c5bbe0b`. It covers everything the released **b0 to b4** checkpoints use: TF-style
 log-mel front end, `basic_resnet` 2D blocks, `conv+att` 1D blocks, `agg_gnorm`, the 2D output
 head and ASTP pooling. Other config options raise `NotImplementedError`.
 
@@ -38,13 +38,15 @@ model = load_model("mlx_models/b3-vox2-lm")
 emb = model(mx.array(wav_16k_float32)[None])  # (1, 192)
 ```
 
-`load_model` also accepts a Hugging Face repo id and downloads it into the HF cache. The b3
+`load_model` also accepts a Hugging Face repo id and downloads it into the HF cache. The b0 to b4
 checkpoints are being moved to Hugging Face; until that's done, use the local `mlx_models/` paths.
 
-Publish converted models (one HF repo per checkpoint, with a generated model card):
+Publish converted models (one HF repo per checkpoint, with a generated model card).
+`publish_all.sh` converts every released b0 to b4 checkpoint from the upstream release and
+uploads them all:
 
 ```bash
-HF_TOKEN=... uv run python publish_hf.py --namespace avra-m3 mlx_models/*
+HF_TOKEN=... ./publish_all.sh avra-m3
 ```
 
 The input is mono 16 kHz float audio shaped (B, samples), the same as the PyTorch model.
@@ -73,19 +75,23 @@ uv run --group dev ruff check .
 
 ## Parity (float32, MLX CPU backend, Linux)
 
-Embeddings were checked on synthetic 1 s, 3.3 s and 8 s batches plus one real speech clip. The
-worst embedding error relative to max |value|:
+Every released checkpoint from b0 to b4 was checked on synthetic 1 s, 3.3 s and 8 s batches
+plus one real speech clip. The worst embedding error relative to max |value| (logs in
+`results/`):
 
-| checkpoint | MLX vs PyTorch fp32 | PyTorch fp32 vs fp64 (floor) |
+| checkpoint | lm | ptn |
 |---|---|---|
-| b3-vox2-lm | 4.4e-6 | ~1e-6 |
-| b3-vox2-ptn | 4.4e-6 | ~1e-6 |
-| b3-vb2+vox2+cnc2_v0-lm | 3.2e-6 | ~1e-6 |
+| b0 vox2 | 2.9e-6 | 3.5e-6 |
+| b1 vox2 | 3.4e-6 | 3.9e-6 |
+| b2 vox2 | 3.9e-6 | 3.6e-6 |
+| b3 vox2 | 4.4e-6 | 4.4e-6 |
+| b3 vb2+vox2+cnc2 | 3.2e-6 | not released |
+| b4 vox2 | 4.1e-6 | 3.1e-6 |
 
-Cosine similarity between the MLX and PyTorch embeddings rounds to 1.000000000 in every case.
-Bit-exact equality isn't achievable because the two frameworks accumulate conv and matmul sums
-in a different order. The remaining difference is the same size as PyTorch's own float32
-rounding error.
+PyTorch's own float32 output is about 1e-6 away from a float64 run, which is the practical
+floor. Cosine similarity between the MLX and PyTorch embeddings rounds to 1.000000000 in every
+case. Bit-exact equality isn't achievable because the two frameworks accumulate conv and matmul
+sums in a different order.
 
 ## Not verified here
 
