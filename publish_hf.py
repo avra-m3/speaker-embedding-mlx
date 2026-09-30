@@ -38,6 +38,21 @@ def repo_name(model_dir):
     return f"redimnet2-{slug}-mlx"
 
 
+RESULTS = Path(__file__).parent / "results"
+
+
+def parity_line(name):
+    """Per-checkpoint parity sentence from results/parity_<name>.txt, if it exists."""
+    log = RESULTS / f"parity_{name}.txt"
+    m = log.exists() and re.search(r"worst embedding rel error: ([0-9.e+-]+)", log.read_text())
+    if not m:
+        return "Parity against PyTorch has not been recorded for this checkpoint."
+    return (
+        f"Embeddings match the PyTorch reference to {float(m.group(1)):.1e} relative error "
+        "(worst case, float32, MLX CPU backend)."
+    )
+
+
 def model_card(model_dir, repo_id):
     size, rest = model_dir.name.split("-", 1)
     dataset, train = rest.rsplit("-", 1)
@@ -76,8 +91,8 @@ emb = model(mx.array(wav_16k_float32)[None])  # (1, {cfg.get("embed_dim", 192)})
 
 ## Parity
 
-Embeddings match the PyTorch reference to about 4e-6 relative error in float32 (MLX CPU
-backend). See the [parity logs]({CODE}/tree/main/results).
+{parity_line(model_dir.name)} See the
+[parity log]({CODE}/blob/main/results/parity_{model_dir.name.replace("+", "%2B")}.txt).
 {caveat}
 ## License and citation
 
