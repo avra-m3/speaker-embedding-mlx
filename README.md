@@ -14,6 +14,7 @@ head and ASTP pooling. Other config options raise `NotImplementedError`.
 - `convert.py` turns an official `.pt` checkpoint into `config.json` + `weights.safetensors`.
 - `parity.py` runs PyTorch and MLX on the same audio and compares features, backbone output and
   embeddings, with a float64 PyTorch run as the rounding floor.
+- `publish_hf.py` uploads converted models to Hugging Face with a model card.
 - `embed.py` embeds wav files and prints the cosine score for a pair.
 - `mlx_models/` has the three b3 checkpoints already converted: `b3-vox2-lm`,
   `b3-vox2-ptn` and `b3-vb2+vox2+cnc2_v0-lm`.
@@ -35,6 +36,15 @@ from redimnet2_mlx import load_model
 
 model = load_model("mlx_models/b3-vox2-lm")
 emb = model(mx.array(wav_16k_float32)[None])  # (1, 192)
+```
+
+`load_model` also accepts a Hugging Face repo id and downloads it into the HF cache. The b3
+checkpoints are being moved to Hugging Face; until that's done, use the local `mlx_models/` paths.
+
+Publish converted models (one HF repo per checkpoint, with a generated model card):
+
+```bash
+HF_TOKEN=... uv run python publish_hf.py --namespace avra-m3 mlx_models/*
 ```
 
 The input is mono 16 kHz float audio shaped (B, samples), the same as the PyTorch model.

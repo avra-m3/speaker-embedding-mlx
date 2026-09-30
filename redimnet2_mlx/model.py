@@ -550,9 +550,29 @@ class ReDimNet2Wrap(nn.Module):
         return out
 
 
-def load_model(path):
-    """Load a converted model directory (config.json + weights.safetensors)."""
-    path = Path(path)
+def resolve_model_path(path_or_repo, revision=None):
+    """Return a local directory for a converted model.
+
+    Accepts a local directory, or a Hugging Face repo id (e.g.
+    "avra-m3/redimnet2-b3-vox2-lm-mlx") which is downloaded into the HF cache.
+    """
+    path = Path(path_or_repo)
+    if path.is_dir():
+        return path
+    from huggingface_hub import snapshot_download
+
+    return Path(
+        snapshot_download(
+            str(path_or_repo),
+            revision=revision,
+            allow_patterns=["config.json", "weights.safetensors"],
+        )
+    )
+
+
+def load_model(path_or_repo, revision=None):
+    """Load a converted model from a local directory or a Hugging Face repo id."""
+    path = resolve_model_path(path_or_repo, revision)
     cfg = json.loads((path / "config.json").read_text())
     model = ReDimNet2Wrap(**cfg)
     model.load_weights(str(path / "weights.safetensors"), strict=True)
