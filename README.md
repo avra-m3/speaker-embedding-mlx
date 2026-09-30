@@ -38,15 +38,17 @@ model = load_model("mlx_models/b3-vox2-lm")
 emb = model(mx.array(wav_16k_float32)[None])  # (1, 192)
 ```
 
-`load_model` also accepts a Hugging Face repo id and downloads it into the HF cache. The b0 to b4
-checkpoints are being moved to Hugging Face; until that's done, use the local `mlx_models/` paths.
+`load_model` also accepts a Hugging Face repo id and downloads it into the HF cache. All b0 to b4
+checkpoints are on Hugging Face as `causal/redimnet2-<name>-mlx`, for example
+[`causal/redimnet2-b3-vox2-lm-mlx`](https://huggingface.co/causal/redimnet2-b3-vox2-lm-mlx). The
+names are `b{0..4}-vox2-lm`, `b{0..4}-vox2-ptn` and `b3-vb2-vox2-cnc2-lm`.
 
 Publish converted models (one HF repo per checkpoint, with a generated model card).
 `publish_all.sh` converts every released b0 to b4 checkpoint from the upstream release and
 uploads them all:
 
 ```bash
-HF_TOKEN=... ./publish_all.sh avra-m3
+HF_TOKEN=... ./publish_all.sh causal
 ```
 
 The input is mono 16 kHz float audio shaped (B, samples), the same as the PyTorch model.

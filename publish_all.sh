@@ -2,9 +2,9 @@
 # Convert every released ReDimNet2 checkpoint from b0 to b4 and upload each one to
 # Hugging Face as <namespace>/redimnet2-<name>-mlx. Needs HF_TOKEN with write access.
 #
-#   ./publish_all.sh [namespace]   # default namespace: avra-m3
+#   ./publish_all.sh [namespace]   # default namespace: causal
 set -euo pipefail
-NS="${1:-avra-m3}"
+NS="${1:-causal}"
 OUT=build
 uv sync --group convert
 for size in b0 b1 b2 b3 b4; do

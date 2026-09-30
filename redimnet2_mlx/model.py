@@ -554,7 +554,7 @@ def resolve_model_path(path_or_repo, revision=None):
     """Return a local directory for a converted model.
 
     Accepts a local directory, or a Hugging Face repo id (e.g.
-    "avra-m3/redimnet2-b3-vox2-lm-mlx") which is downloaded into the HF cache.
+    "causal/redimnet2-b3-vox2-lm-mlx") which is downloaded into the HF cache.
     """
     path = Path(path_or_repo)
     if path.is_dir():
