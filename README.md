@@ -78,4 +78,4 @@ still needs checking on a Mac:
 
 ## License
 
-The model code is ported from ReDimNet2, which is MIT licensed; its license is in `LICENSE-redimnet2`. The converted weights come from the upstream v1.0.0 release.
+The model code is ported from ReDimNet2 (MIT) and parts of ReDimNet (MIT) and WeSpeaker (Apache-2.0). The converted weights come from the ReDimNet2 v1.0.0 release, which is published under the same MIT license. See `LICENSE-redimnet2` and `THIRD_PARTY_NOTICES.md`.
