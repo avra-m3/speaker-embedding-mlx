@@ -16,6 +16,8 @@ dependencies = [
 # Needed only for convert.py and parity.py
 convert = ["torch", "torchaudio", "scipy"]
 dev = ["ruff>=0.16"]
+# Needed only for demo/speaker_light.py (mic input; scipy resamples mics that refuse 16 kHz)
+demo = ["sounddevice", "scipy"]
 
 [build-system]
 requires = ["hatchling"]

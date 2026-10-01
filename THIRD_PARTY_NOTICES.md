@@ -12,3 +12,5 @@ converted from the ReDimNet2 v1.0.0 release.
   Copyright (c) 2021 Shuai Wang. The `ASTP` class in `redimnet2_mlx/model.py` is a modified
   MLX reimplementation. License: http://www.apache.org/licenses/LICENSE-2.0
 - The transformer layer follows Hugging Face Transformers (Apache License 2.0), as noted upstream.
+- **SpeechBrain** test samples (https://github.com/speechbrain/speechbrain, `tests/samples/ASR/`):
+  the six clips in `demo/test_audio/`. Apache License 2.0.
