@@ -13,7 +13,7 @@ conversion only transposes conv weights. Keep that property when you add model c
 
 ```bash
 uv sync                                  # runtime deps
-uv sync --group convert                  # torch + scipy, for convert.py and parity.py
+uv sync --group convert                  # torch, torchaudio, scipy for convert.py and parity.py
 uv run --group dev ruff format --check .
 uv run --group dev ruff check .
 ```

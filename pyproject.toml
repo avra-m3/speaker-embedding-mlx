@@ -14,7 +14,7 @@ dependencies = [
 
 [dependency-groups]
 # Needed only for convert.py and parity.py
-convert = ["torch", "scipy"]
+convert = ["torch", "torchaudio", "scipy"]
 dev = ["ruff>=0.16"]
 
 [build-system]
