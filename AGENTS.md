@@ -26,7 +26,7 @@ about 1e-5 relative are acceptable. Anything larger is a bug.
 
 - Manage Python with uv (`pyproject.toml`, `uv.lock`). Never use pip or requirements.txt.
 - Code must pass `ruff format --check` and `ruff check` with the repo config (line length 100).
-- Converted weights are published to Hugging Face under `avra-m3`, one repo per checkpoint.
+- Converted weights are published to Hugging Face under `causal`, one repo per checkpoint.
   `HF_TOKEN` comes from the environment only.
 
 ## Tone of voice
