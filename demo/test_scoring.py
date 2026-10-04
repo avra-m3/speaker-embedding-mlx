@@ -1,6 +1,6 @@
 """Checks the enroll + sliding-window scoring logic on the bundled two-speaker clips.
 
-    uv run demo/test_scoring.py [--model mlx_models/b3-vox2-lm]
+    uv run demo/test_scoring.py [--model causal/redimnet2-b3-vox2-lm-mlx]
 
 The clips in test_audio/ are from SpeechBrain's test samples (Apache-2.0): spk1_* and spk2_*
 are two different speakers, three short utterances each.

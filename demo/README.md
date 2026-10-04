@@ -40,8 +40,8 @@ uv run --group demo demo/speaker_light.py --enroll me.npy --no-gui
 Drag the threshold slider to tune the cutoff live. Re-enroll captures a fresh enrollment from
 the running mic and writes it to `--save-embedding` when that flag is set.
 
-The model defaults to `mlx_models/b3-vox2-lm` when that directory exists and to
-`causal/redimnet2-b3-vox2-lm-mlx` on Hugging Face otherwise. Pass `--model` to pick another.
+The model defaults to `causal/redimnet2-b3-vox2-lm-mlx` on Hugging Face. Pass `--model` to pick
+another repo id or a local directory.
 
 ## How it scores
 

@@ -4,7 +4,6 @@ Everything here runs on plain numpy arrays of 16 kHz mono float32 audio, so the 
 drives the live mic demo and the file-based tests.
 """
 
-import os
 from dataclasses import dataclass
 
 import mlx.core as mx
@@ -14,9 +13,7 @@ import soundfile as sf
 from redimnet2_mlx import load_model  # noqa: F401  (re-exported for the scripts)
 
 SR = 16000
-_LOCAL_MODEL = os.path.join(os.path.dirname(__file__), "..", "mlx_models", "b3-vox2-lm")
-# Use the checkpoint in mlx_models/ when it is there, else fetch it from Hugging Face.
-DEFAULT_MODEL = _LOCAL_MODEL if os.path.isdir(_LOCAL_MODEL) else "causal/redimnet2-b3-vox2-lm-mlx"
+DEFAULT_MODEL = "causal/redimnet2-b3-vox2-lm-mlx"
 
 
 def read_wav(path):
