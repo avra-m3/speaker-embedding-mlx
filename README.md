@@ -128,17 +128,23 @@ uv run --group demo demo/speaker_light.py --save-embedding me.npy
 
 See [demo/README.md](demo/README.md) for the options and the microphone permission prompt.
 
-## What has been checked
+## Accuracy and speed
 
-Every checkpoint was compared against the original PyTorch model on the same audio. The worst
-embedding error, relative to the largest value, was 4.4e-6, and cosine similarity between the
-MLX and PyTorch embeddings rounds to 1.000000000. The full table is below.
+Every checkpoint was compared against the original PyTorch model on the same audio. On an M1
+MacBook Pro with 16 GB and MLX 0.32.3 on the Metal GPU, `parity.py` passes for b0 to b4 lm, b3
+ptn and b3 vb2+vox2+cnc2. The worst embedding error, relative to the largest value, is 2.1e-6
+to 2.9e-6, and cosine similarity between the MLX and PyTorch embeddings rounds to 1.000000000.
+The Linux CPU runs in the table below agree.
 
-All of that ran on Linux with the MLX CPU backend. Apple Silicon GPU (Metal) results and speed
-have not been measured yet. If you run `parity.py` or time it on a Mac, an issue with the
-numbers is welcome. The Linux CPU build uses a slow reference BLAS, so a 10 s clip took about
-12 s there. That says nothing about Mac speed. float16 and bfloat16 inference have not been
-tried.
+On the same M1, a warm 10 s clip at batch 1 takes 78 to 273 ms on the GPU, depending on the
+model size. b3 takes 182 ms, or 136 ms with `mx.compile`. b0 and b2 run slower than b1 on the
+GPU, which nobody has profiled yet. The MLX CPU backend is 3x to 11x slower than the GPU, and
+on Linux the `mlx[cpu]` wheel is slower still.
+
+float16 runs 1.2x to 1.7x faster if you keep the log-mel front end in float32. Embeddings then
+drift to about 5e-3 relative error, with cosine 0.99999 against float32. Casting the whole
+model to float16 returns NaN on digital silence, because the front end's 1e-8 epsilon
+underflows. bfloat16 drifts about 10x more than float16 and runs slower, so it has no upside.
 
 ## For contributors
 
@@ -180,7 +186,8 @@ uv run --group convert python parity.py --torch-repo redimnet2 --checkpoint b3-v
 ```
 
 Each checkpoint was checked on synthetic 1 s, 3.3 s and 8 s batches plus one real speech clip
-(float32, MLX CPU backend, Linux). Worst embedding error relative to max |value|:
+(float32, MLX CPU backend, Linux). Worst embedding error relative to max |value|, with
+the M1 Metal runs at 2.1e-6 to 2.9e-6 for comparison:
 
 | checkpoint | lm | ptn |
 |---|---|---|
