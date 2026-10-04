@@ -1,7 +1,7 @@
 """Compare the MLX port against the official PyTorch ReDimNet2 on the same audio.
 
     python parity.py --torch-repo path/to/redimnet2 --checkpoint b3-vox2-lm.pt \
-        --mlx-model mlx_models/b3-vox2-lm [--wav speech.wav]
+        --mlx-model causal/redimnet2-b3-vox2-lm-mlx [--wav speech.wav]
 
 Reports max abs / relative error for the log-mel features, the backbone output and the
 final embedding, plus embedding cosine similarity. The float64 PyTorch run gives the

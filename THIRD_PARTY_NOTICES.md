@@ -1,7 +1,7 @@
 # Third-party notices
 
-`redimnet2_mlx/` is a port of code from the projects below, and `mlx_models/` holds weights
-converted from the ReDimNet2 v1.0.0 release.
+`redimnet2_mlx/` is a port of code from the projects below. The converted weights published on
+Hugging Face come from the ReDimNet2 v1.0.0 release.
 
 - **ReDimNet2** (https://github.com/PalabraAI/redimnet2): model code and pretrained weights.
   MIT License, Copyright (c) 2026 Palabra.ai. Full text in `LICENSE-redimnet2`.

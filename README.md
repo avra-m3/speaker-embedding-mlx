@@ -16,8 +16,6 @@ head and ASTP pooling. Other config options raise `NotImplementedError`.
   embeddings, with a float64 PyTorch run as the rounding floor.
 - `publish_hf.py` uploads converted models to Hugging Face with a model card.
 - `embed.py` embeds wav files and prints the cosine score for a pair.
-- `mlx_models/` has the three b3 checkpoints already converted: `b3-vox2-lm`,
-  `b3-vox2-ptn` and `b3-vb2+vox2+cnc2_v0-lm`.
 - `results/` holds the parity logs.
 
 ## Usage
@@ -27,18 +25,19 @@ Dependencies are managed with [uv](https://docs.astral.sh/uv/). `uv sync` instal
 
 ```bash
 uv sync
-uv run python embed.py mlx_models/b3-vox2-lm a.wav b.wav
+uv run python embed.py causal/redimnet2-b3-vox2-lm-mlx a.wav b.wav
 ```
 
 ```python
 import mlx.core as mx
 from redimnet2_mlx import load_model
 
-model = load_model("mlx_models/b3-vox2-lm")
+model = load_model("causal/redimnet2-b3-vox2-lm-mlx")
 emb = model(mx.array(wav_16k_float32)[None])  # (1, 192)
 ```
 
-`load_model` also accepts a Hugging Face repo id and downloads it into the HF cache. All b0 to b4
+`load_model` takes a Hugging Face repo id or a local directory. A repo id downloads into the HF
+cache. All b0 to b4
 checkpoints are on Hugging Face as `causal/redimnet2-<name>-mlx`, for example
 [`causal/redimnet2-b3-vox2-lm-mlx`](https://huggingface.co/causal/redimnet2-b3-vox2-lm-mlx). The
 names are `b{0..4}-vox2-lm`, `b{0..4}-vox2-ptn` and `b3-vb2-vox2-cnc2-lm`.
@@ -57,7 +56,7 @@ Convert another checkpoint (downloads from the upstream release when `--checkpoi
 
 ```bash
 uv sync --group convert
-uv run python convert.py --model b3 --train-type lm --dataset vox2 --out mlx_models/b3-vox2-lm
+uv run python convert.py --model b3 --train-type lm --dataset vox2 --out build/b3-vox2-lm
 ```
 
 Re-run parity (needs a clone of the upstream repo and the `.pt` file):
@@ -65,7 +64,7 @@ Re-run parity (needs a clone of the upstream repo and the `.pt` file):
 ```bash
 git clone https://github.com/PalabraAI/redimnet2 && git -C redimnet2 checkout c5bbe0b
 uv run --group convert python parity.py --torch-repo redimnet2 --checkpoint b3-vox2-lm.pt \
-    --mlx-model mlx_models/b3-vox2-lm --wav some_speech.wav
+    --mlx-model build/b3-vox2-lm --wav some_speech.wav
 ```
 
 ## Development

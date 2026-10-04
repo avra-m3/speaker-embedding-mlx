@@ -1,7 +1,7 @@
 """Convert an official ReDimNet2 PyTorch checkpoint (.pt) to MLX.
 
-    python convert.py --model b3 --train-type lm --dataset vox2 --out mlx_models/b3-vox2-lm
-    python convert.py --checkpoint b3-vox2-lm.pt --out mlx_models/b3-vox2-lm
+    python convert.py --model b3 --train-type lm --dataset vox2 --out build/b3-vox2-lm
+    python convert.py --checkpoint b3-vox2-lm.pt --out build/b3-vox2-lm
 
 Writes <out>/config.json and <out>/weights.safetensors. Needs torch (CPU is fine).
 """

@@ -1,6 +1,6 @@
 """Upload converted models to Hugging Face, one repo per checkpoint, with a model card.
 
-    HF_TOKEN=... uv run python publish_hf.py --namespace causal mlx_models/b3-vox2-lm ...
+    HF_TOKEN=... uv run python publish_hf.py --namespace causal build/b3-vox2-lm ...
 
 Each directory becomes <namespace>/redimnet2-<name>-mlx (override with --repo-name for a
 single directory). Use --dry-run to write the model cards locally without uploading.
