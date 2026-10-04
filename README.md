@@ -44,13 +44,14 @@ The repo ships six short test clips: three sentences from one speaker and three 
 Compare two clips from the same speaker:
 
 ```bash
-uv run python embed.py mlx_models/b3-vox2-lm demo/test_audio/spk1_snt1.wav demo/test_audio/spk1_snt2.wav
+uv run python embed.py causal/redimnet2-b3-vox2-lm-mlx demo/test_audio/spk1_snt1.wav demo/test_audio/spk1_snt2.wav
 ```
 
-The last line prints `cosine: 0.767`. Now compare two different speakers:
+The first run downloads the model, about 17 MB, from Hugging Face into its local cache. Later
+runs reuse it. The last line prints `cosine: 0.767`. Now compare two different speakers:
 
 ```bash
-uv run python embed.py mlx_models/b3-vox2-lm demo/test_audio/spk1_snt1.wav demo/test_audio/spk2_snt1.wav
+uv run python embed.py causal/redimnet2-b3-vox2-lm-mlx demo/test_audio/spk1_snt1.wav demo/test_audio/spk2_snt1.wav
 ```
 
 This time it prints `cosine: 0.030`.
@@ -98,8 +99,7 @@ weights once into the Hugging Face cache. The model expects mono 16 kHz float32 
 All eleven released checkpoints are on Hugging Face as `causal/redimnet2-<name>-mlx`. The
 sizes go from b0, the smallest and fastest, to b4, the largest and most accurate. Start with
 [`causal/redimnet2-b3-vox2-lm-mlx`](https://huggingface.co/causal/redimnet2-b3-vox2-lm-mlx).
-It is a good balance, and its weights are also in `mlx_models/` so the examples above work
-without a download.
+It balances accuracy and speed, and it is the model the examples above use.
 
 | size | weights | names |
 |---|---|---|
@@ -166,7 +166,7 @@ every released checkpoint. `results/` holds the parity logs.
 
 ```bash
 uv sync --group convert
-uv run python convert.py --model b3 --train-type lm --dataset vox2 --out mlx_models/b3-vox2-lm
+uv run python convert.py --model b3 --train-type lm --dataset vox2 --out build/b3-vox2-lm
 ```
 
 ### Check parity
@@ -176,7 +176,7 @@ This needs a clone of the upstream repo and the `.pt` file:
 ```bash
 git clone https://github.com/PalabraAI/redimnet2 && git -C redimnet2 checkout c5bbe0b
 uv run --group convert python parity.py --torch-repo redimnet2 --checkpoint b3-vox2-lm.pt \
-    --mlx-model mlx_models/b3-vox2-lm --wav some_speech.wav
+    --mlx-model build/b3-vox2-lm --wav some_speech.wav
 ```
 
 Each checkpoint was checked on synthetic 1 s, 3.3 s and 8 s batches plus one real speech clip
